@@ -1,22 +1,21 @@
 import os
-from pathlib import Path
+from dotenv import load_dotenv
 
-def load_env():
-    env_file = Path(__file__).resolve().parent.parent.parent / ".env"
-    if env_file.exists():
-        with open(env_file, "r", encoding="utf-8") as f:
-            for line in f:
-                line = line.strip()
-                if line and not line.startswith("#") and "=" in line:
-                    k, v = line.split("=", 1)
-                    os.environ.setdefault(k.strip(), v.strip().strip('"'))
-
-load_env()
+# Force load .env
+load_dotenv(override=True)
 
 class Config:
-    GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
-    OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
-    DEFAULT_MODEL: str = os.getenv("DEFAULT_MODEL", "gemini-2.5-flash")
-    LOG_LEVEL: str = os.getenv("LOG_LEVEL", "INFO")
+    PROVIDER = os.getenv("AI_PROVIDER", "you").lower()
+    MODEL = os.getenv("MODEL", "you-answer")
+    YOU_API_KEY = os.getenv("YOU_API_KEY", "")
+    GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+    
+    def get_api_key(self, provider=None):
+        p = (provider or self.PROVIDER).lower()
+        if p == "you":
+            return self.YOU_API_KEY
+        if p == "gemini":
+            return self.GEMINI_API_KEY
+        return os.getenv(f"{p.upper()}_API_KEY", "")
 
 config = Config()

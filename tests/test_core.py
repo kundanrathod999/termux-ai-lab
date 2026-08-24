@@ -5,7 +5,7 @@ from src.agents.ai_agent import AIAgent
 
 class TestTermuxAILab(unittest.TestCase):
     def test_config(self):
-        self.assertEqual(config.DEFAULT_MODEL, "gemini-2.5-flash")
+        self.assertEqual(config.DEFAULT_MODEL, "gemini-flash-latest")
 
     def test_memory(self):
         mem = ConversationMemory(max_turns=2)

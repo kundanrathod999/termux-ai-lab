@@ -1,44 +1,38 @@
 import sys
-from src.agents.ai_agent import AIAgent
+import os
+
+# Ensure current project directory is in python path
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
 from src.core.config import config
-from src.core.logger import logger
+from src.agent.agent import AIAgent
 
 def main():
     print("=" * 50)
     print("🚀 Welcome to Termux AI Lab!")
     print("=" * 50)
-    print(f"Model: {config.DEFAULT_MODEL}")
-    print("Type \x27exit\x27 or \x27quit\x27 to exit. Use \x27!run <command>\x27 for local shell execution.\n")
+    print(f"Provider: {config.PROVIDER.upper()} | Model: {config.MODEL}")
+    print("Type 'exit' or 'quit' to exit.")
+    print("-" * 50)
 
     agent = AIAgent(name="TermuxBot")
 
     while True:
         try:
-            user_input = input("🤖 You > ").strip()
+            user_input = input("\n🤖 You > ").strip()
             if not user_input:
                 continue
-            if user_input.lower() in ["exit", "quit", "q"]:
-                print("\nGoodbye! 👋")
+            if user_input.lower() in ("exit", "quit"):
+                print("Goodbye! 👋")
                 break
             
-            if user_input.startswith("!run "):
-                cmd = user_input[5:].strip()
-                res = agent.run_tool("execute_command", command=cmd)
-                if res.get("stdout"):
-                    print(f"\n[STDOUT]\n{res.get('stdout')}")
-                if res.get("stderr"):
-                    print(f"\n[STDERR]\n{res.get('stderr')}")
-                print()
-                continue
-
-            response = agent.chat(user_input)
-            print(f"\n🤖 TermuxBot > {response}\n")
+            response = agent.run(user_input)
+            print(f"\n🤖 TermuxBot > {response}")
         except KeyboardInterrupt:
-            print("\n\nSession terminated. Goodbye! 👋")
+            print("\nSession stopped.")
             break
         except Exception as e:
-            logger.error(f"Error in main loop: {e}")
-            print(f"\n[Error] {e}\n")
+            print(f"\n[Error] {e}")
 
 if __name__ == "__main__":
     main()
