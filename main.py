@@ -1,33 +1,44 @@
 import sys
+from src.agents.ai_agent import AIAgent
+from src.core.config import config
 from src.core.logger import logger
-from src.agents.base import BaseAgent
 
 def main():
-    logger.info("Starting Termux AI Lab...")
-    agent = BaseAgent(name="TermuxCLI")
-    print("\n=== Termux AI Lab Interactive CLI ===")
-    print("Type /help for options or /exit to quit.\n")
+    print("=" * 50)
+    print("🚀 Welcome to Termux AI Lab!")
+    print("=" * 50)
+    print(f"Model: {config.DEFAULT_MODEL}")
+    print("Type \x27exit\x27 or \x27quit\x27 to exit. Use \x27!run <command>\x27 for local shell execution.\n")
+
+    agent = AIAgent(name="TermuxBot")
+
     while True:
         try:
-            user_input = input("termux-ai > ").strip()
+            user_input = input("🤖 You > ").strip()
             if not user_input:
                 continue
-            if user_input.lower() in ["/exit", "exit", "quit"]:
-                print("Goodbye!")
+            if user_input.lower() in ["exit", "quit", "q"]:
+                print("\nGoodbye! 👋")
                 break
-            elif user_input.lower() == "/help":
-                print("Commands:\n  /exec <command>   - Execute shell command\n  /read <filepath>  - Read file\n  /exit             - Exit CLI")
-            elif user_input.startswith("/exec "):
-                res = agent.run_tool("execute_command", command=user_input[6:].strip())
-                print(res.get("stdout") if res.get("success") else f"Error: {res.get('stderr')}")
-            elif user_input.startswith("/read "):
-                res = agent.run_tool("read_file", path=user_input[6:].strip())
-                print(res.get("content") if res.get("success") else f"Error: {res.get('error')}")
-            else:
-                print("Unknown command. Type /help for assistance.")
-        except (KeyboardInterrupt, EOFError):
-            print("\nSession ended.")
+            
+            if user_input.startswith("!run "):
+                cmd = user_input[5:].strip()
+                res = agent.run_tool("execute_command", command=cmd)
+                if res.get("stdout"):
+                    print(f"\n[STDOUT]\n{res.get('stdout')}")
+                if res.get("stderr"):
+                    print(f"\n[STDERR]\n{res.get('stderr')}")
+                print()
+                continue
+
+            response = agent.chat(user_input)
+            print(f"\n🤖 TermuxBot > {response}\n")
+        except KeyboardInterrupt:
+            print("\n\nSession terminated. Goodbye! 👋")
             break
+        except Exception as e:
+            logger.error(f"Error in main loop: {e}")
+            print(f"\n[Error] {e}\n")
 
 if __name__ == "__main__":
     main()
